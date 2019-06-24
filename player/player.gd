@@ -1,36 +1,54 @@
-extends KinematicBody2D
+extends Actor
 
-export (int) var speed = 200
-var velocity = Vector2.ZERO
+export (int) var speed = 100
+var last_position = Vector2.ZERO
 var next_position = Vector2.ZERO
-var movement_locked = false
+var direction = Vector2.ZERO
 
-func _ready():
+onready var raycast: RayCast2D = $RayCast
+onready var grid
+
+func initialize(grid: Grid) -> void:
+	self.grid = grid
+
+func _ready() -> void:
 	position = position.snapped(Game.tile)
+	last_position = position
 	next_position = position
-	$Timer.connect("timeout", self, "unlock_movement")
-	$Timer.stop()
 	
-func _physics_process(delta):
-	velocity = Vector2.ZERO
-	if (movement_locked):
-		return
+func _process(delta) -> void:
+	if raycast.is_colliding():
+		position = last_position
+		next_position = last_position
+	else:
+		position += speed * direction * delta
 	
-	var x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	var y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
-	next_position.x = position.x + Game.tile_size * x
-	next_position.y = position.y + Game.tile_size * y
-	if (next_position != position):
-		lock_movement()
-		position = next_position
-#	velocity.x = x * speed
-#	velocity.y = y * speed
-#	velocity = move_and_slide(velocity)
+		if position.distance_to(last_position)  >= Game.tile_size - speed * delta:
+			position = next_position
+	
+	if position == next_position:
+		direction = _get_direction()
+		last_position = position
+		next_position += direction * Game.tile_size
+	
+	if direction != Vector2.ZERO:
+		raycast.cast_to = direction * Game.tile_size / 2
 
-func lock_movement():
-	$Timer.start()
-	movement_locked = true
-
-func unlock_movement():
-	movement_locked = false
+func _unhandled_input(event: InputEvent):
+	if event.is_action_pressed('interact') && raycast.is_colliding():
+		var point = raycast.get_collision_point()
+		var look_direction = raycast.cast_to.normalized()
+		var target = position + look_direction * Game.tile_size / 2
+		print(look_direction)
+		print(point)
+		print(position)
+		print(target)
+		grid.request_interaction(point)
+#		print('*********')
+	
+func _get_direction() -> Vector2:
+	return Vector2(
+		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
+		Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
+	)
 	
