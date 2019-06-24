@@ -1,9 +1,11 @@
 extends Actor
+class_name Player
 
 export (int) var speed = 100
 var last_position = Vector2.ZERO
 var next_position = Vector2.ZERO
 var direction = Vector2.ZERO
+var keys = 0
 
 onready var raycast: RayCast2D = $RayCast
 onready var grid
@@ -34,17 +36,11 @@ func _process(delta) -> void:
 	if direction != Vector2.ZERO:
 		raycast.cast_to = direction * Game.tile_size / 2
 
-func _unhandled_input(event: InputEvent):
+func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed('interact') && raycast.is_colliding():
-		var point = raycast.get_collision_point()
-		var look_direction = raycast.cast_to.normalized()
-		var target = position + look_direction * Game.tile_size / 2
-		print(look_direction)
-		print(point)
-		print(position)
-		print(target)
-		grid.request_interaction(point)
-#		print('*********')
+		var target = raycast.get_collider()
+		if target.has_method('interact'):
+			target.interact(self)
 	
 func _get_direction() -> Vector2:
 	return Vector2(

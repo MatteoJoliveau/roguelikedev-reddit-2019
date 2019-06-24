@@ -5,7 +5,8 @@ onready var pawns = $Pawns
 
 func _ready():
 	for pawn in pawns.get_children():
-		pawn.initialize(self)
+		if pawn.has_method('initialize'):
+			pawn.initialize(self)
 
 func request_interaction(tile_coords: Vector2) -> void:
 	var cell_index = get_cell(tile_coords.x, tile_coords.y)

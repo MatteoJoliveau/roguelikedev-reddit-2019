@@ -23,11 +23,17 @@ _global_script_classes=[ {
 "class": "Pawn",
 "language": "GDScript",
 "path": "res://engine/pawn.gd"
+}, {
+"base": "Actor",
+"class": "Player",
+"language": "GDScript",
+"path": "res://player/player.gd"
 } ]
 _global_script_class_icons={
 "Actor": "",
 "Grid": "",
-"Pawn": ""
+"Pawn": "",
+"Player": ""
 }
 
 [application]
