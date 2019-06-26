@@ -10,10 +10,11 @@ enum DOOR_TYPE {
 
 enum DOOR_STATUS {
 	OPEN,
-	CLOSED
+	CLOSED,
 }
 
 export (DOOR_TYPE) var door_type = DOOR_TYPE.SIMPLE setget _set_door_type
+export (bool) var locked = false
 const REGION_SIZE = Vector2(16, 16)
 
 var door_sprite_regions = {
@@ -56,4 +57,9 @@ func _toggle() -> void:
 			collisions.disabled = true
 			
 func interact(target):
+	if locked:
+		if !target.get('keys'):
+			return
+		else:
+			target.keys -= 1
 	queue_free()

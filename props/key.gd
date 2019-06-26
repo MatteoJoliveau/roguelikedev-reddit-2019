@@ -1,5 +1,5 @@
 tool
-extends Sprite
+extends Pawn
 
 enum KEY_TYPE {
 	SIMPLE,
